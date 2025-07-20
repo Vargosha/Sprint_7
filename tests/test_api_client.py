@@ -1,19 +1,18 @@
 import pytest
-from tests.api_client import *
-from tests.data import DataForTests
+from api_client import *
+from data import DataForTests
 
 
 class TestApiCreateCourier:
     @allure.title('Проверка успешного создания курьера с обязательными полями')
-    def test_create_courier_with_valid_data_returns_201(self):
+    def test_create_courier_with_valid_data_returns_201(self, delete_courier):
         payload = generate_random_register_data_for_courier()
 
         response = ApiClientMethods.create_courier(payload)
         assert response.status_code == 201
         assert response.json()["ok"] == True
 
-        courier_id = ApiClientMethods.get_courier_id(payload)
-        ApiClientMethods.delete_courier(courier_id)
+        delete_courier(payload)
 
     @allure.title('Проверка невозможности создания дубликата курьера')
     def test_cannot_create_duplicate_courier_returns_409(self, create_courier_than_delete):
@@ -72,14 +71,13 @@ class TestApiLoginCourier:
 class TestApiCreateOrder:
     @allure.title('Проверка успешного создания заказа с разными вариантами выбора цвета самоката')
     @pytest.mark.parametrize('payload', DataForTests.CREATE_ORDER_DATA_VARIAL_COLOR, ids=["black_color", "grey_color", "black_and_grey_color", "empty_color"])
-    def test_create_order_with_varial_color_returns_track_number(self, payload):
+    def test_create_order_with_varial_color_returns_track_number(self, payload, delete_order):
         response = ApiClientMethods.create_order(payload)
 
         assert response.status_code == 201
         assert "track" in response.json()
 
-        order_track = response.json()["track"]
-        ApiClientMethods.delete_order(order_track)
+        delete_order(response)
 
 class TestApiGetOrdersList:
     @allure.title('Проверка успешного получения списка заказов')

@@ -1,5 +1,5 @@
 import pytest
-from tests.api_client import ApiClientMethods
+from api_client import ApiClientMethods
 from helpers import generate_random_register_data_for_courier, generate_random_data_for_order
 
 
@@ -109,3 +109,31 @@ def create_order_only():
     }
 
     return order_dict
+
+@pytest.fixture
+def delete_courier():
+    courier_id = None
+
+    def get_id_for_delete(payload):
+        nonlocal courier_id
+        courier_id = ApiClientMethods.get_courier_id(payload)
+        return courier_id
+
+    yield get_id_for_delete
+
+    if courier_id is not None:
+        ApiClientMethods.delete_courier(courier_id)
+
+@pytest.fixture
+def delete_order():
+    order_track = None
+
+    def get_order_track_dor_delete(response):
+        nonlocal order_track
+        order_track = response.json()["track"]
+        return order_track
+
+    yield get_order_track_dor_delete
+
+    if order_track is not None:
+        ApiClientMethods.delete_order(order_track)

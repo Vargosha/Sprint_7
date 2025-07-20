@@ -1,6 +1,6 @@
 import allure
 import requests
-from tests.endpoints import Endpoints
+from endpoints import Endpoints
 from helpers import *
 
 
